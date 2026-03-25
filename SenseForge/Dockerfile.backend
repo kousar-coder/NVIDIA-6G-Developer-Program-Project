@@ -1,0 +1,42 @@
+# ═══════════════════════════════════════════════════════════════
+# SenseForge — Backend Dockerfile
+# ═══════════════════════════════════════════════════════════════
+# Built on top of NVIDIA Aerial container for GPU access.
+# Installs pyAerial, project deps, trains fusion model,
+# runs validation, and starts uvicorn.
+# ═══════════════════════════════════════════════════════════════
+
+FROM nvcr.io/nvidia/aerial/aerial-cuda-accelerated-ran:25-3-cubb
+
+WORKDIR /workspace/SenseForge
+
+# ── Install pyAerial (must be provided as build context) ─────
+COPY pyaerial/ /workspace/pyaerial/
+RUN pip install -e /workspace/pyaerial/ 2>/dev/null || true
+
+# ── Install Python dependencies ─────────────────────────────
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# ── Copy project files ──────────────────────────────────────
+COPY rf/ rf/
+COPY vision/ vision/
+COPY fusion/ fusion/
+COPY backend/ backend/
+COPY scripts/ scripts/
+COPY tests/ tests/
+COPY models/ models/
+COPY aerial_validate.py .
+COPY run_pipeline_test.py .
+
+# ── Train fusion model ──────────────────────────────────────
+RUN python -m fusion.train
+
+# ── Run validation ──────────────────────────────────────────
+RUN python aerial_validate.py || true
+
+# ── Expose port ─────────────────────────────────────────────
+EXPOSE 8000
+
+# ── Start backend ───────────────────────────────────────────
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

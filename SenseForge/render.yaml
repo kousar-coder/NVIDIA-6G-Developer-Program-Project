@@ -1,0 +1,35 @@
+# ═══════════════════════════════════════════════════════════════
+# SenseForge — Render.com Deployment
+# ═══════════════════════════════════════════════════════════════
+# NOTE: Full functionality requires a GPU instance with
+# NVIDIA AI Aerial SDK. Standard Render instances will run
+# in demo/synthetic mode only.
+# ═══════════════════════════════════════════════════════════════
+
+services:
+  - type: web
+    name: senseforge-backend
+    env: python
+    plan: standard  # NOTE: GPU plan required for full SDK support
+    buildCommand: "pip install -r requirements.txt && python -m fusion.train"
+    startCommand: "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      - key: FRONTEND_URL
+        value: https://senseforge-frontend.onrender.com
+      - key: PYTHON_VERSION
+        value: "3.11"
+
+  - type: web
+    name: senseforge-frontend
+    env: static
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: frontend/build
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

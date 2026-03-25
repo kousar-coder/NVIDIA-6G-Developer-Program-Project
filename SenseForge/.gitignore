@@ -1,0 +1,45 @@
+# ═══ Python ═══
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+
+# ═══ Models & Data ═══
+models/*.pt
+models/*.pth
+models/*.onnx
+data/videos/*.mp4
+data/videos/*.avi
+
+# ═══ Frontend ═══
+node_modules/
+frontend/build/
+frontend/.env.local
+frontend/.env.production
+
+# ═══ Environment ═══
+.env
+.env.*
+!.env.example
+
+# ═══ IDE ═══
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ═══ OS ═══
+.DS_Store
+Thumbs.db
+
+# ═══ Logs ═══
+*.log
+logs/

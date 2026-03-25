@@ -1,0 +1,60 @@
+# ═══════════════════════════════════════════════════════════════
+# SenseForge — Docker Compose
+# ═══════════════════════════════════════════════════════════════
+# Backend: Runs inside NVIDIA Aerial container with GPU access
+# Frontend: React build served by nginx
+# ═══════════════════════════════════════════════════════════════
+
+version: "3.8"
+
+services:
+  # ── Backend ──────────────────────────────────────────────────
+  backend:
+    image: ${AERIAL_IMAGE:-nvcr.io/nvidia/aerial/aerial-cuda-accelerated-ran:25-3-cubb}
+    container_name: senseforge-backend
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - ${AERIAL_SDK_PATH:-~/aerial-cuda-accelerated-ran}/pyaerial:/workspace/pyaerial
+      - .:/workspace/SenseForge
+    working_dir: /workspace/SenseForge
+    command: >
+      bash -c "
+        pip install -e /workspace/pyaerial/ 2>/dev/null || true &&
+        pip install -r requirements.txt &&
+        python -m fusion.train &&
+        uvicorn backend.main:app --host 0.0.0.0 --port 8000
+      "
+    ports:
+      - "8000:8000"
+    environment:
+      - FRONTEND_URL=http://localhost:3000
+      - AERIAL_SDK_PATH=/workspace/pyaerial
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; r=requests.get('http://localhost:8000/health'); exit(0 if r.ok else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  # ── Frontend ─────────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: senseforge-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8000
+      - REACT_APP_WS_URL=ws://localhost:8000
+    restart: unless-stopped
