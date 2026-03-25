@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div align="center">
 
 # 🛡️ SenseForge
@@ -639,3 +640,6 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 <img src="https://img.shields.io/badge/Sensor_Fusion-00FF88?style=for-the-badge&logoColor=black" alt="Sensor Fusion"/>
 
 </div>
+=======
+
+>>>>>>> 088e1ea93234b70f930ae5b90baf98dda4f1433d
