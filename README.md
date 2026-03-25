@@ -627,7 +627,7 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 <div align="center">
 
-**Built with 🛡️ by the SenseForge Team**
+**Built with ❤️ by the Kousar Saeed**
 
 *5G NR FR1 n78 · μ=1 · 30 kHz SCS · Sionna + cuPHY + YOLOv8*
 
@@ -640,5 +640,3 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 </div>
 =======
-
->>>>>>> 088e1ea93234b70f930ae5b90baf98dda4f1433d
